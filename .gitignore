@@ -1,0 +1,36 @@
+# ── Node / Frontend ──────────────────────────────────────────────────────
+node_modules/
+front/dist/
+front/.vite/
+*.local
+
+# ── .NET / Backend ───────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# ── Electron ─────────────────────────────────────────────────────────────
+electron/node_modules/
+electron/dist/
+
+# ── Secrets / Config locale ──────────────────────────────────────────────
+.env
+.env.*
+appsettings.*.local.json
+appsettings.Development.json
+
+# ── Docker ───────────────────────────────────────────────────────────────
+*.pid
+
+# ── Logs ─────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+# ── OS / IDE ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
