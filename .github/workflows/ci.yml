@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+      MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Remplace les placeholders {{XXX}} des appsettings.json par les secrets GitHub.
+      # Permet de garder le repo public sans jamais committer de vraies valeurs.
+      - name: Injecter les secrets dans appsettings.json
+        run: |
+          set -e
+          for FILE in \
+            back/GED/MediaManager/MediaManager.API/appsettings.json \
+            back/UserManager/UserManager.API/appsettings.json
+          do
+            sed -i \
+              -e "s|{{POSTGRES_PASSWORD}}|${POSTGRES_PASSWORD}|g" \
+              -e "s|{{MINIO_ACCESS_KEY}}|${MINIO_ACCESS_KEY}|g" \
+              -e "s|{{MINIO_SECRET_KEY}}|${MINIO_SECRET_KEY}|g" \
+              -e "s|{{JWT_SECRET}}|${JWT_SECRET}|g" \
+              "$FILE"
+          done
+
+      - name: Build image UserManager
+        run: docker build -t randohost-user-api -f back/UserManager/UserManager.API/Dockerfile back/UserManager
+
+      - name: Build image GED
+        run: docker build -t randohost-ged-api -f back/GED/MediaManager/MediaManager.API/Dockerfile back/GED/MediaManager
+
+      - name: Build image Front
+        run: docker build -t randohost-front -f front/Dockerfile front

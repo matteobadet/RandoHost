@@ -43,10 +43,28 @@ Prérequis : [Docker](https://www.docker.com/) et Docker Compose installés.
 ```bash
 git clone https://github.com/matteobadet/RandoHost.git
 cd RandoHost
+cp .env.example .env   # puis renseigner vos propres valeurs
 docker compose up -d
 ```
 
 L'application est ensuite accessible sur [http://localhost](http://localhost).
+
+## Secrets et configuration
+
+Aucun secret n'est commité dans ce dépôt public. Les `appsettings.json` contiennent des
+placeholders `{{POSTGRES_PASSWORD}}`, `{{MINIO_ACCESS_KEY}}`, `{{MINIO_SECRET_KEY}}`, `{{JWT_SECRET}}`
+qui sont :
+- remplacés par les valeurs de `.env` lors d'un lancement via `docker compose` (variables d'environnement),
+- ou substitués par la pipeline CI (GitHub Actions) à partir des **GitHub Secrets** du dépôt lors du build des images.
+
+Secrets à configurer dans *Settings → Secrets and variables → Actions* du repo GitHub :
+
+| Secret               | Description                              |
+|----------------------|-------------------------------------------|
+| `POSTGRES_PASSWORD`  | Mot de passe des bases PostgreSQL          |
+| `MINIO_ACCESS_KEY`   | Clé d'accès MinIO                          |
+| `MINIO_SECRET_KEY`   | Clé secrète MinIO                          |
+| `JWT_SECRET`         | Secret de signature des JWT (32+ caractères) |
 
 ## Documentation
 

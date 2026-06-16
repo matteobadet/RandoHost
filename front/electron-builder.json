@@ -1,0 +1,9 @@
+{
+  "appId": "com.randohost.app",
+  "productName": "RandoHost",
+  "directories": { "output": "dist-electron" },
+  "files": ["dist/**/*", "electron/**/*"],
+  "win": { "target": "nsis" },
+  "mac": { "target": "dmg" },
+  "linux": { "target": "AppImage" }
+}

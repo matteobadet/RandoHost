@@ -1,0 +1,55 @@
+services:
+  postgres-users:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: usermanager
+    volumes:
+      - pgdata_users:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: secret123
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  minio-init:
+    image: minio/mc
+    depends_on: [minio]
+    entrypoint: >
+      /bin/sh -c "
+        sleep 3;
+        mc alias set local http://minio:9000 admin secret123;
+        mc mb --ignore-existing local/avatars;
+      "
+
+  userapi:
+    build:
+      context: .
+      dockerfile: UserManager.API/Dockerfile
+    ports:
+      - "5001:8080"
+    depends_on: [postgres-users, minio]
+    environment:
+      ConnectionStrings__Default: "Host=postgres-users;Database=usermanager;Username=postgres;Password=secret"
+      Storage__Endpoint: "http://minio:9000"
+      Storage__AccessKey: "admin"
+      Storage__SecretKey: "secret123"
+      Storage__AvatarBucket: "avatars"
+      Jwt__Secret: "CHANGE_ME_IN_PRODUCTION_USE_32CHARS_MIN!!"
+      Jwt__Issuer: "UserManager"
+      Jwt__Audience: "RandoHostApps"
+      Jwt__AccessTokenMinutes: "15"
+      Jwt__RefreshTokenDays: "7"
+
+volumes:
+  pgdata_users:
+  minio_data:
